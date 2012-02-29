@@ -18,12 +18,10 @@
 #import "SPJuggler.h"
 
 #import <UIKit/UIKit.h>
-#import <UIKit/UIDevice.h>
 
 // --- static members ------------------------------------------------------------------------------
 
 static BOOL supportHighResolutions = NO;
-static BOOL doubleOnPad = NO;
 static float contentScaleFactor = -1;
 static NSMutableArray *stages = NULL;
 
@@ -130,16 +128,6 @@ static NSMutableArray *stages = NULL;
     [NSException raise:SP_EXC_INVALID_OPERATION format:@"cannot set y-coordinate of stage"];
 }
 
-- (void)setPivotX:(float)value
-{
-    [NSException raise:SP_EXC_INVALID_OPERATION format:@"cannot set pivot coordinates of stage"];
-}
-
-- (void)setPivotY:(float)value
-{
-    [NSException raise:SP_EXC_INVALID_OPERATION format:@"cannot set pivot coordinates of stage"];
-}
-
 - (void)setScaleX:(float)value
 {
     [NSException raise:SP_EXC_INVALID_OPERATION format:@"cannot scale stage"];
@@ -192,28 +180,19 @@ static NSMutableArray *stages = NULL;
     {
         if ([stage.nativeView respondsToSelector:@selector(contentScaleFactor)])
         {
-            float factor = supportHighResolutions ? [[UIScreen mainScreen] scale] : 1.0f;
-            if (contentScaleFactor != -1) factor = contentScaleFactor;
-            
-            [stage.nativeView setContentScaleFactor:factor];
+            [stage.nativeView setContentScaleFactor:[SPStage contentScaleFactor]];
             [stage.nativeView layoutSubviews];
         }
     }
 }
 
-+ (void)setSupportHighResolutions:(BOOL)hd doubleOnPad:(BOOL)pad
++ (void)setSupportHighResolutions:(BOOL)value
 {
-    if (hd != supportHighResolutions || pad != doubleOnPad)
+    if (value != supportHighResolutions)
     {
-        supportHighResolutions = hd;
-        doubleOnPad = hd || pad; // only makes sense with hd = YES
-        [self updateNativeViews];
+        supportHighResolutions = value;
+        [SPStage updateNativeViews];
     }
-}
-
-+ (void)setSupportHighResolutions:(BOOL)hd
-{
-    [self setSupportHighResolutions:hd doubleOnPad:NO];
 }
 
 + (BOOL)supportHighResolutions
@@ -221,37 +200,27 @@ static NSMutableArray *stages = NULL;
     return supportHighResolutions;
 }
 
-+ (BOOL)doubleResolutionsOnPad
-{
-    return doubleOnPad;
-}
-
-// DEPRECATED
 + (void)setContentScaleFactor:(float)value
 {
     if (value != contentScaleFactor)
     {
         contentScaleFactor = value;
         [SPStage updateNativeViews];
-    }
+    }    
 }
 
 + (float)contentScaleFactor
 {
-    if (supportHighResolutions && [UIScreen instancesRespondToSelector:@selector(scale)])
+    if (supportHighResolutions &&
+        [UIScreen instancesRespondToSelector:@selector(scale)] &&
+        [UIImage  instancesRespondToSelector:@selector(scale)])
     {
-        if (contentScaleFactor == -1)
-        {
-            float factor = [[UIScreen mainScreen] scale];
-            if (doubleOnPad && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) factor *= 2;
-            return factor;
-        }
-        else return contentScaleFactor;
+        return contentScaleFactor == -1 ? [[UIScreen mainScreen] scale] : contentScaleFactor;
     }
     else
     {
         return 1.0f;
-    }
+    }        
 }
 
 @end
@@ -262,8 +231,10 @@ static NSMutableArray *stages = NULL;
 
 - (void)setNativeView:(id)nativeView
 {
+    if ([nativeView respondsToSelector:@selector(setContentScaleFactor:)])
+        [nativeView setContentScaleFactor:[SPStage contentScaleFactor]];    
+    
     mNativeView = nativeView;
-    [SPStage updateNativeViews];
 }
 
 @end
