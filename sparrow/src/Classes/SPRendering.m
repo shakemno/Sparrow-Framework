@@ -77,7 +77,10 @@
     [support bindTexture:nil];
     
     for (int i=0; i<4; ++i)
-        colors[i] = [support convertColor:mVertexColors[i] alpha:alpha];
+        colors[i] = [support convertColor:mVertexColors[i] alpha:mVertexAlpha[i]*alpha];
+    
+    //dont't need border so i'll leave out for now
+    //if (mBorder) borderColors[i] = [support convertColor:mBorderVertexColors[i] alpha:mBorderVertexAlpha[i]*alpha];
     
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);    
