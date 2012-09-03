@@ -24,6 +24,20 @@
 @synthesize scewY1 = mScewY1;
 @synthesize scewY2 = mScewY2;
 
+- (id)initWithWidth:(float)width height:(float)height color:(uint)color
+{
+    if ((self = [super init]))
+    {
+        mVertexCoords[2] = width; 
+        mVertexCoords[5] = height; 
+        mVertexCoords[6] = width;
+        mVertexCoords[7] = height;
+        
+        self.color = color;
+    }
+    return self;    
+}
+
 - (id)initWithWidth:(float)width height:(float)height
 {
     if (self = [super init])
@@ -326,6 +340,16 @@
 + (SPQuad*)quadWithWidth:(float)width height:(float)height
 {
     return [[[SPQuad alloc] initWithWidth:width height:height] autorelease];
+}
+
++ (SPQuad*)quadWithWidth:(float)width height:(float)height color:(uint)color
+{
+    return [[[SPQuad alloc] initWithWidth:width height:height color:color] autorelease];
+}
+
++ (SPQuad*)quad
+{
+    return [[[SPQuad alloc] init] autorelease];
 }
 
 @end

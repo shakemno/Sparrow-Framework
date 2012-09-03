@@ -17,7 +17,7 @@
 /// SPTouchPhase describes the phases in the life-cycle of a touch.
 typedef enum 
 {    
-    SPTouchPhaseBegan,      /// The finger just touched the screen.    
+    SPTouchPhaseBegan = 0,  /// The finger just touched the screen.    
     SPTouchPhaseMoved,      /// The finger moves around.    
     SPTouchPhaseStationary, /// The finger has not moved since the last frame.    
     SPTouchPhaseEnded,      /// The finger was lifted from the screen.    
@@ -32,17 +32,19 @@ typedef enum
  query it for all touches that are currently present on the screen. One SPTouch object contains
  information about a single touch.
  
- *The phase of a touch*
+ **The phase of a touch**
  
  Each touch normally moves through the following phases in its life:
  
  `Began -> Moved -> Ended`
  
- Furthermore, a touch can enter a `Stationary` phase. That phase will not trigger an event itself, 
- but you might receive it when another touch does so. Finally, there's the `Cancelled` phase,
- which happens when the system aborts a touch (e.g. because of an AlertBox that pops up).
+ Furthermore, a touch can enter a <code>STATIONARY</code> phase. That phase does not
+ trigger a touch event itself, and it can only occur when 'Multitouch' is activated. Picture a 
+ situation where one finger is moving and the other is stationary. A touch event will
+ be dispatched only to the object under the _moving_ finger. In the list of touches of
+ that event, you will find the second touch in the stationary phase.
  
- *The position of a touch*
+ **The position of a touch**
  
  You can get the current and last position on the screen with corresponding properties. However, 
  you'll want to have the position in a different coordinate system most of the time. 
